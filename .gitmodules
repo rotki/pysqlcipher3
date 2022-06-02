@@ -1,0 +1,12 @@
+[submodule "sqlcipher"]
+	path = sqlcipher
+	url = https://github.com/sqlcipher/sqlcipher/
+[submodule "pysqlcipher3"]
+	path = pysqlcipher3
+	url = https://github.com/rigglemania/pysqlcipher3.git
+[submodule "rotki-win-build"]
+	path = rotki-win-build
+	url = https://github.com/rotki/rotki-win-build.git
+[submodule "openssl"]
+	path = openssl
+	url = https://github.com/openssl/openssl.git

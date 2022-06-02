@@ -1,0 +1,123 @@
+Index: setup.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>ISO-8859-1
+===================================================================
+diff --git a/setup.py b/setup.py
+--- a/setup.py	(revision 1f1b703b9e35205946c820e735f58799e1b72d2d)
++++ b/setup.py	(date 1655174671350)
+@@ -1,6 +1,7 @@
+ # -*- coding: ISO-8859-1 -*-
+ # setup.py: the distutils script
+ #
++# Copyright (C) 2022 Rotki Solutions GmbH <info@rotki.com>
+ # Copyright (C) 2015 David Riggleman <davidriggleman@gmail.com>
+ # Copyright (C) 2013 Kali Kaneko <kali@futeisha.org> (sqlcipher support)
+ # Copyright (C) 2005-2010 Gerhard Häring <gh@ghaering.de>
+@@ -33,15 +34,14 @@
+ # If you need to change anything, it should be enough to change setup.cfg.
+ 
+ PACKAGE_NAME = "pysqlcipher3"
+-VERSION = '1.0.4'
++VERSION = '{{version}}'
+ LONG_DESCRIPTION = \
+ """Python interface to SQLCipher
+ 
+ pysqlcipher3 is an interface to the SQLite 3.x embedded relational
+ database engine. It is almost fully compliant with the Python database API
+ version 2.0. At the same time, it also exposes the unique features of
+-SQLCipher. Prior to installation, libsqlcipher must already be installed
+-on your system, with the process dependent on your operating system."""
++SQLCipher. This build has SQLCipher 4.x statically linked."""
+ 
+ # define sqlite sources
+ sources = [os.path.join("src", "python" + str(sys.version_info[0]), source)
+@@ -66,20 +66,13 @@
+ 
+ 
+ def quote_argument(arg):
+-    quote = '"' if sys.platform != 'win32' else '\\"'
++    quote = '"'  # if sys.platform != 'win32' else '\\"' # note needed for python 3.9
+     return quote + arg + quote
+ 
++
+ define_macros = [('MODULE_NAME', quote_argument(PACKAGE_NAME + '.dbapi2'))]
+ 
+ 
+-class SystemLibSQLCipherBuilder(build_ext):
+-    description = "Builds a C extension linking against libsqlcipher library"
+-
+-    def build_extension(self, ext):
+-        log.info(self.description)
+-        build_ext.build_extension(self, ext)
+-
+-
+ class AmalgationLibSQLCipherBuilder(build_ext):
+     description = "Builds a C extension using a sqlcipher amalgamation"
+ 
+@@ -127,15 +120,17 @@
+                 raise RuntimeError(error_message)
+ 
+             openssl = os.path.dirname(os.path.dirname(openssl_conf))
+-            openssl_lib_path = os.path.join(openssl, "lib")
++            openssl_lib_path = os.path.join(openssl, "\\")
+ 
+             # Configure the compiler
+             ext.include_dirs.append(os.path.join(openssl, "include"))
+             ext.define_macros.append(("inline", "__inline"))
+ 
+             # Configure the linker
+-            ext.extra_link_args.append("libeay32.lib")
+-            ext.extra_link_args.append('/LIBPATH:' + openssl_lib_path)
++            ext.extra_link_args.append("libcrypto.lib")
++            ext.extra_link_args.append("User32.lib")
++            ext.extra_link_args.append("advapi32.lib")
++            ext.extra_link_args.append(f'/LIBPATH:{openssl_lib_path}')
+         else:
+             ext.extra_link_args.append("-lcrypto")
+ 
+@@ -151,20 +146,22 @@
+ 
+ def get_setup_args():
+     return dict(
+-        name=PACKAGE_NAME,
++        name=f'rotki-{PACKAGE_NAME}',
+         version=VERSION,
+-        description="DB-API 2.0 interface for SQLCIPHER 3.x",
++        description="DB-API 2.0 interface for SQLCIPHER 4.x",
+         long_description=LONG_DESCRIPTION,
+-        author="David Riggleman",
+-        author_email="davidriggleman@gmail.com",
++        author="Rotki Solutions GmbH",
++        author_email="info@rotki.com",
+         license="zlib/libpng",
+         platforms="ALL",
+-        url="https://github.com/rigglemania/pysqlcipher3",
++        url="https://github.com/rotki/pysqlcipher3",
+         package_dir={PACKAGE_NAME: "lib"},
+         packages=packages,
+         ext_modules=[Extension(
+             name=PACKAGE_NAME + EXTENSION_MODULE_NAME,
+             sources=sources,
++            library_dirs=[r'{{openssl_lib_dir}}'],
++            include_dirs=[r'./include', r'{{openssl_include_dir}}'],
+             define_macros=define_macros)
+         ],
+         classifiers=[
+@@ -179,8 +176,7 @@
+             "Topic :: Database :: Database Engines/Servers",
+             "Topic :: Software Development :: Libraries :: Python Modules"],
+         cmdclass={
+-            "build_amalgamation": AmalgationLibSQLCipherBuilder,
+-            "build_ext": SystemLibSQLCipherBuilder
++            "build_ext": AmalgationLibSQLCipherBuilder
+         }
+     )
+ 
+@@ -191,5 +187,6 @@
+     except BaseException as ex:
+         log.info(str(ex))
+ 
++
+ if __name__ == "__main__":
+     main()

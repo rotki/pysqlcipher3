@@ -1,0 +1,5 @@
+.idea
+build
+tmp
+openssl-*
+patches/pysqlcipher3.diff
