@@ -1,15 +1,23 @@
 name: Build
 on:
-  - push
-  - pull_request
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
 
 env:
-  LIB_VERSION: '2022.6.1'
+  LIB_VERSION: '2022.8.1'
   PYTHON_VERSION: '3.9.13'
   CIBW_VERSION: '2.6.1'
   CIBW_BUILD: 'cp39-*'
   CIBW_SKIP: '*-musllinux_*'
   CIBW_BUILD_VERBOSITY: 1
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build_macos_openssl:
