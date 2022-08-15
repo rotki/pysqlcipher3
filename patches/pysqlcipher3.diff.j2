@@ -1,11 +1,6 @@
-Index: setup.py
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>ISO-8859-1
-===================================================================
 diff --git a/setup.py b/setup.py
---- a/setup.py	(revision 1f1b703b9e35205946c820e735f58799e1b72d2d)
-+++ b/setup.py	(date 1655174671350)
+--- a/setup.py	(revision aba724c7b190730bef6836372e8cf3dad38d45f3)
++++ b/setup.py	(date 1660552187976)
 @@ -1,6 +1,7 @@
  # -*- coding: ISO-8859-1 -*-
  # setup.py: the distutils script
@@ -13,12 +8,12 @@ diff --git a/setup.py b/setup.py
 +# Copyright (C) 2022 Rotki Solutions GmbH <info@rotki.com>
  # Copyright (C) 2015 David Riggleman <davidriggleman@gmail.com>
  # Copyright (C) 2013 Kali Kaneko <kali@futeisha.org> (sqlcipher support)
- # Copyright (C) 2005-2010 Gerhard Häring <gh@ghaering.de>
+ # Copyright (C) 2005-2010 Gerhard HÃ¤ring <gh@ghaering.de>
 @@ -33,15 +34,14 @@
  # If you need to change anything, it should be enough to change setup.cfg.
  
  PACKAGE_NAME = "pysqlcipher3"
--VERSION = '1.0.4'
+-VERSION = '1.1.0'
 +VERSION = '{{version}}'
  LONG_DESCRIPTION = \
  """Python interface to SQLCipher
@@ -76,13 +71,14 @@ diff --git a/setup.py b/setup.py
          else:
              ext.extra_link_args.append("-lcrypto")
  
-@@ -151,20 +146,22 @@
+@@ -151,21 +146,23 @@
  
  def get_setup_args():
      return dict(
 -        name=PACKAGE_NAME,
 +        name=f'rotki-{PACKAGE_NAME}',
          version=VERSION,
+         python_requires=">=3.3",
 -        description="DB-API 2.0 interface for SQLCIPHER 3.x",
 +        description="DB-API 2.0 interface for SQLCIPHER 4.x",
          long_description=LONG_DESCRIPTION,
@@ -104,7 +100,7 @@ diff --git a/setup.py b/setup.py
              define_macros=define_macros)
          ],
          classifiers=[
-@@ -179,8 +176,7 @@
+@@ -180,8 +177,7 @@
              "Topic :: Database :: Database Engines/Servers",
              "Topic :: Software Development :: Libraries :: Python Modules"],
          cmdclass={
@@ -114,7 +110,7 @@ diff --git a/setup.py b/setup.py
          }
      )
  
-@@ -191,5 +187,6 @@
+@@ -192,5 +188,6 @@
      except BaseException as ex:
          log.info(str(ex))
  
