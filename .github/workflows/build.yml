@@ -180,6 +180,9 @@ jobs:
         env:
           CIBW_BEFORE_BUILD: Powershell.exe -F ./build.ps1
           CIBW_ARCHS_WINDOWS: "native"
+      - name: clean openssl conf
+        shell: pwsh
+        run: echo "OPENSSL_CONF=''" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
       - uses: actions/upload-artifact@v3
         with:
           path: build\wheelhouse\*.whl
