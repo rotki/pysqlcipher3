@@ -1,6 +1,6 @@
 diff --git a/setup.py b/setup.py
 --- a/setup.py	(revision aba724c7b190730bef6836372e8cf3dad38d45f3)
-+++ b/setup.py	(date 1660552187976)
++++ b/setup.py	(date 1688387643717)
 @@ -1,6 +1,7 @@
  # -*- coding: ISO-8859-1 -*-
  # setup.py: the distutils script
@@ -8,7 +8,7 @@ diff --git a/setup.py b/setup.py
 +# Copyright (C) 2022 Rotki Solutions GmbH <info@rotki.com>
  # Copyright (C) 2015 David Riggleman <davidriggleman@gmail.com>
  # Copyright (C) 2013 Kali Kaneko <kali@futeisha.org> (sqlcipher support)
- # Copyright (C) 2005-2010 Gerhard HÃ¤ring <gh@ghaering.de>
+ # Copyright (C) 2005-2010 Gerhard Häring <gh@ghaering.de>
 @@ -33,15 +34,14 @@
  # If you need to change anything, it should be enough to change setup.cfg.
  
@@ -50,7 +50,7 @@ diff --git a/setup.py b/setup.py
  class AmalgationLibSQLCipherBuilder(build_ext):
      description = "Builds a C extension using a sqlcipher amalgamation"
  
-@@ -127,15 +120,17 @@
+@@ -127,17 +120,19 @@
                  raise RuntimeError(error_message)
  
              openssl = os.path.dirname(os.path.dirname(openssl_conf))
@@ -69,7 +69,10 @@ diff --git a/setup.py b/setup.py
 +            ext.extra_link_args.append("advapi32.lib")
 +            ext.extra_link_args.append(f'/LIBPATH:{openssl_lib_path}')
          else:
-             ext.extra_link_args.append("-lcrypto")
+-            ext.extra_link_args.append("-lcrypto")
++            ext.extra_link_args.append("{{openssl_lib_dir}}libcrypto.a")
+ 
+         build_ext.build_extension(self, ext)
  
 @@ -151,21 +146,23 @@
  
