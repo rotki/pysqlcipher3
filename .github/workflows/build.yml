@@ -26,12 +26,10 @@ jobs:
       matrix:
         ARCH:
           - NAME: x86_64
-            ARTIFACT_NAME: x86-64
             CFLAGS: "-mmacosx-version-min=10.09 -march=core2"
             OPENSSLDIR: "/usr/local/etc/openssl@1.1"
             FLAGS: no-shared no-asm no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc4 no-rc5 no-md2 no-md4 no-ecdh no-sock no-ssl3 no-dsa no-dh no-ec no-ecdsa no-tls1 no-rfc3779 no-whirlpool no-srp no-mdc2 no-ecdh no-engine no-srtp no-weak-ssl-ciphers
           - NAME: arm64
-            ARTIFACT_NAME: arm64
             CFLAGS: "-mmacosx-version-min=11.0"
             OPENSSLDIR: "/opt/homebrew/etc/openssl@1.1"
             FLAGS: no-shared no-asm no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc4 no-rc5 no-md2 no-md4 no-ecdh no-sock no-ssl3 no-dsa no-dh no-ec no-ecdsa no-tls1 no-rfc3779 no-whirlpool no-srp no-mdc2 no-ecdh no-engine no-srtp no-weak-ssl-ciphers
@@ -57,7 +55,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: "openssl-macos-${{ matrix.ARCH.ARTIFACT_NAME }}"
+          name: "openssl-macos-${{ matrix.ARCH.NAME }}"
           path: artifact/
 
   build_macos_openssl_universal2:
@@ -67,7 +65,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: openssl-macos-x86-64
+          name: openssl-macos-x86_64
           path: x86-64
       - uses: actions/download-artifact@v3
         with:
@@ -92,6 +90,9 @@ jobs:
   build_wheels_macos:
     name: 'Build wheels for macOS'
     runs-on: macos-11
+    strategy:
+      matrix:
+        arch: [arm64, x86_64, universal2]
     needs: [build_macos_openssl_universal2]
     steps:
       - uses: actions/checkout@v3
@@ -104,16 +105,8 @@ jobs:
           cache: 'pip'
       - uses: actions/download-artifact@v3
         with:
-          name: openssl-macos-x86-64
-          path: openssl-macos-x86_64
-      - uses: actions/download-artifact@v3
-        with:
-          name: openssl-macos-arm64
-          path: openssl-macos-arm64
-      - uses: actions/download-artifact@v3
-        with:
-          name: openssl-macos-universal2
-          path: openssl-macos-universal2
+          name: openssl-macos-${{ matrix.arch }}
+          path: openssl-macos-${{ matrix.arch }}
       - name: prepare build directory
         run: ./scripts/prepare.sh
       - name: Install cibuildwheel
@@ -122,7 +115,7 @@ jobs:
         working-directory: build
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_ARCHS_MACOS: x86_64 arm64 universal2
+          CIBW_ARCHS_MACOS: ${{ matrix.arch }}
           CIBW_BEFORE_BUILD_MACOS: ./build.sh
       - uses: actions/upload-artifact@v3
         with:
