@@ -8,9 +8,9 @@ on:
       - main
 
 env:
-  LIB_VERSION: '2023.5.1'
+  LIB_VERSION: '2023.7.1'
   PYTHON_VERSION: '3.10.11'
-  CIBW_VERSION: '2.12.3'
+  CIBW_VERSION: '2.13.1'
   CIBW_BUILD: 'cp310-*'
   CIBW_SKIP: '*-musllinux_*'
   CIBW_BUILD_VERBOSITY: 1
