@@ -8,10 +8,10 @@ on:
       - main
 
 env:
-  LIB_VERSION: '2023.7.1'
-  PYTHON_VERSION: '3.10.11'
-  CIBW_VERSION: '2.13.1'
-  CIBW_BUILD: 'cp310-*'
+  LIB_VERSION: '2024.1.1'
+  PYTHON_VERSION: '3.11.7'
+  CIBW_VERSION: '2.16.2'
+  CIBW_BUILD: 'cp311-*'
   CIBW_SKIP: '*-musllinux_*'
   CIBW_BUILD_VERBOSITY: 1
 
@@ -99,7 +99,7 @@ jobs:
         with:
           submodules: true
       - name: Set up python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
@@ -138,7 +138,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         if: ${{ matrix.arch == 'aarch64' }}
         with:
           platforms: arm64
