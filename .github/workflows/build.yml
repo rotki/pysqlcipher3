@@ -35,7 +35,7 @@ jobs:
             FLAGS: no-shared no-asm no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc4 no-rc5 no-md2 no-md4 no-ecdh no-sock no-ssl3 no-dsa no-dh no-ec no-ecdsa no-tls1 no-rfc3779 no-whirlpool no-srp no-mdc2 no-ecdh no-engine no-srtp no-weak-ssl-ciphers
     name: "Build OpenSSL for macOS (${{ matrix.ARCH.NAME }})"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - name: Build OpenSSL
@@ -53,7 +53,7 @@ jobs:
         env:
           CFLAGS: ${{ matrix.ARCH.CFLAGS }}
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: "openssl-macos-${{ matrix.ARCH.NAME }}"
           path: artifact/
@@ -63,11 +63,11 @@ jobs:
     name: "Build OpenSSL for macOS (universal2)"
     needs: [build_macos_openssl]
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: openssl-macos-x86_64
           path: x86-64
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: openssl-macos-arm64
           path: arm64
@@ -82,7 +82,7 @@ jobs:
           lipo -create -output bin/openssl ../x86-64/bin/openssl ../arm64/bin/openssl
           lipo -create -output lib/libssl.a ../x86-64/lib/libssl.a ../arm64/lib/libssl.a
           lipo -create -output lib/libcrypto.a ../x86-64/lib/libcrypto.a ../arm64/lib/libcrypto.a
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: "openssl-macos-universal2"
           path: artifact/
@@ -95,7 +95,7 @@ jobs:
         arch: [arm64, x86_64, universal2]
     needs: [build_macos_openssl_universal2]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - name: Set up python
@@ -103,7 +103,7 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: openssl-macos-${{ matrix.arch }}
           path: openssl-macos-${{ matrix.arch }}
@@ -117,8 +117,9 @@ jobs:
         env:
           CIBW_ARCHS_MACOS: ${{ matrix.arch }}
           CIBW_BEFORE_BUILD_MACOS: ./build.sh
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
+          name: macos-${{ matrix.arch }}-wheels
           path: build/wheelhouse/*.whl
 
   build_wheels_linux:
@@ -128,11 +129,11 @@ jobs:
       matrix:
         arch: [ aarch64, native ]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - name: Set up python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
@@ -151,19 +152,20 @@ jobs:
         env:
           CIBW_BEFORE_BUILD_LINUX: ./build.sh
           CIBW_ARCHS_LINUX: ${{ matrix.arch }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
+          name: linux-${{ matrix.arch }}-wheels
           path: build/wheelhouse/*.whl
 
   build_wheels_windows:
     name: 'Build wheels for Windows'
     runs-on: 'windows-2019'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - name: Set up python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
@@ -180,19 +182,20 @@ jobs:
       - name: clean openssl conf
         shell: pwsh
         run: echo "OPENSSL_CONF=''" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
+          name: windows-wheels
           path: build\wheelhouse\*.whl
 
   build_sdist:
     name: 'Build sdist'
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - name: Set up python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
@@ -202,7 +205,7 @@ jobs:
         working-directory: build
         run: python3 -m pip install --upgrade build && python -m build -s
       - name: Store artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: build/dist/*.tar.gz
 
@@ -212,12 +215,12 @@ jobs:
     runs-on: ubuntu-20.04
     if: github.event_name == 'push' && !(startsWith(github.ref_name, 'main'))
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: artifact
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.8.7
+      - uses: pypa/gh-action-pypi-publish@v1.8.11
         with:
           user: __token__
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
@@ -230,12 +233,12 @@ jobs:
     runs-on: ubuntu-20.04
     if: github.event_name == 'push' && startsWith(github.ref_name, 'main')
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: artifact
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.8.7
+      - uses: pypa/gh-action-pypi-publish@v1.8.11
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
