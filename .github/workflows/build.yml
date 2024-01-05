@@ -124,6 +124,9 @@ jobs:
   build_wheels_linux:
     name: 'Build wheels for Linux'
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        arch: [ aarch64, native ]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -135,6 +138,7 @@ jobs:
           cache: 'pip'
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
+        if: ${{ matrix.arch == 'aarch64' }}
         with:
           platforms: arm64
       - name: prepare build directory
@@ -146,7 +150,7 @@ jobs:
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_BEFORE_BUILD_LINUX: ./build.sh
-          CIBW_ARCHS_LINUX: "native aarch64"
+          CIBW_ARCHS_LINUX: ${{ matrix.arch }}
       - uses: actions/upload-artifact@v3
         with:
           path: build/wheelhouse/*.whl
