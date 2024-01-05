@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - main
+      - test
 
 env:
   LIB_VERSION: '2024.1.1'
@@ -119,7 +120,7 @@ jobs:
           CIBW_BEFORE_BUILD_MACOS: ./build.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: macos-${{ matrix.arch }}-wheels
+          name: pypi-wheels-macos-${{ matrix.arch }}
           path: build/wheelhouse/*.whl
 
   build_wheels_linux:
@@ -154,7 +155,7 @@ jobs:
           CIBW_ARCHS_LINUX: ${{ matrix.arch }}
       - uses: actions/upload-artifact@v4
         with:
-          name: linux-${{ matrix.arch }}-wheels
+          name: pypi-wheels-linux-${{ matrix.arch }}
           path: build/wheelhouse/*.whl
 
   build_wheels_windows:
@@ -184,7 +185,7 @@ jobs:
         run: echo "OPENSSL_CONF=''" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
       - uses: actions/upload-artifact@v4
         with:
-          name: windows-wheels
+          name: pypi-wheels-windows
           path: build\wheelhouse\*.whl
 
   build_sdist:
@@ -207,6 +208,7 @@ jobs:
       - name: Store artifacts
         uses: actions/upload-artifact@v4
         with:
+          name: pypi-sdist
           path: build/dist/*.tar.gz
 
   upload_pypi_test:
@@ -217,7 +219,8 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: artifact
+          merge-multiple: true
+          pattern: pypi-*
           path: dist
 
       - uses: pypa/gh-action-pypi-publish@v1.8.11
@@ -235,7 +238,8 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: artifact
+          merge-multiple: true
+          pattern: pypi-*
           path: dist
 
       - uses: pypa/gh-action-pypi-publish@v1.8.11
