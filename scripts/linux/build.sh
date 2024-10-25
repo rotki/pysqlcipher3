@@ -49,9 +49,9 @@ cd "$WORKDIR/sqlcipher" || exit 1
   --enable-tempstore=yes \
   --disable-shared \
   --enable-static=yes \
-  --with-crypto-lib=none > /dev/null
+  --with-crypto-lib=none > /dev/null || exit 1
 
-make sqlite3.c > /dev/null
+make sqlite3.c > /dev/null || exit 1
 
 echo "✔ SQLCipher amalgamation created"
 

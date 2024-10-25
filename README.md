@@ -3,7 +3,7 @@
 ![PyPI - Version](https://img.shields.io/pypi/v/rotki-pysqlcipher3)
 ![SQLCipher - Version](https://img.shields.io/badge/SQLCipher-v4.5.3-green)
 ![SQLite - Version](https://img.shields.io/badge/SQLite-3.39.4-green)
-![OpenSSL - Version](https://img.shields.io/badge/OpenSSL-1.1.1w-green)
+![OpenSSL - Version](https://img.shields.io/badge/OpenSSL-3.0.15-green)
 
 
 

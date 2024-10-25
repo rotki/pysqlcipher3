@@ -23,7 +23,7 @@ echo "Activating .venv-ci"
 pip install cibuildwheel==2.21.3
 ExitOnFailure("Failed to activate rotki VirtualEnv")
 
-$env:CIBW_BEFORE_BUILD = 'PowerShell.exe -File .\build.ps1'
+$env:CIBW_BEFORE_ALL = 'PowerShell.exe -File .\build.ps1'
 $env:CIBW_BUILD = 'cp311-*'
 $env:CIBW_ARCHS = 'native'
 $env:CIBW_BUILD_VERBOSITY = 1
