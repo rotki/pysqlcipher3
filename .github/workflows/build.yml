@@ -13,7 +13,7 @@ on:
 env:
   LIB_VERSION: '2024.1.2'
   PYTHON_VERSION: '3.11.7'
-  CIBW_VERSION: '2.16.2'
+  CIBW_VERSION: '2.21.3'
   CIBW_BUILD: 'cp311-*'
   CIBW_SKIP: '*-musllinux_*'
   CIBW_BUILD_VERBOSITY: 1
