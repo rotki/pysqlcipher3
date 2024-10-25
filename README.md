@@ -1,5 +1,12 @@
 # rotki-pysqlcipher3
 
+![PyPI - Version](https://img.shields.io/pypi/v/rotki-pysqlcipher3)
+![SQLCipher - Version](https://img.shields.io/badge/SQLCipher-v4.5.3-green)
+![SQLite - Version](https://img.shields.io/badge/SQLite-3.39.4-green)
+![OpenSSL - Version](https://img.shields.io/badge/OpenSSL-1.1.1w-green)
+
+
+
 Configuration for providing pre-build [pysqlcipher3](https://github.com/rigglemania/pysqlcipher3) wheels for [rotki](https://github.com/rotki/rotki).
 
 ## Description
@@ -25,7 +32,7 @@ For the submodules their respective licenses apply.
 ```
 MIT License
 
-Copyright (c) 2022-2023 Rotki Solutions GmbH
+Copyright (c) 2022-2024 Rotki Solutions GmbH
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
