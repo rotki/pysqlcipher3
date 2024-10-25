@@ -5,7 +5,7 @@ WORKDIR=$PWD
 
 if [[ -n "$(command -v yum)" ]]; then
   echo "Installing tcl using yum"
-  yum -y install tcl-devel
+  yum -y install tcl-devel perl-IPC-Cmd
 fi
 
 if [[ -n "$(command -v apt-get)" ]]; then
@@ -23,22 +23,25 @@ else
   exit 1
 fi
 
-echo "🏗️ Building OpenSSL"
+echo "🏗 Building OpenSSL"
 cd openssl || exit 1
+
+echo "⚙ Running Configure"
 ./Configure $OPENSSL_CONFIGURATION no-shared no-asm no-idea no-camellia no-weak-ssl-ciphers \
   no-seed no-bf no-cast no-rc2 no-rc4 no-rc5 no-md2 \
   no-md4 no-ecdh no-sock no-ssl3 \
   no-dsa no-dh no-ec no-ecdsa no-tls1 \
   no-rfc3779 no-whirlpool no-srp \
   no-mdc2 no-ecdh no-engine no-srtp \
-  --prefix=/usr/local/ssl --openssldir=/usr/local/ssl > /dev/null
+  --prefix=/usr/local/ssl --openssldir=/usr/local/ssl > /dev/null || exit 1
 
-make > /dev/null
-make install_sw > /dev/null
+echo "🔨 Running make"
+make all > /dev/null || exit 1
+make install_sw > /dev/null || exit 1
 
-echo "✔️ OpenSSL Build Complete"
+echo "✔ OpenSSL Build Complete"
 
-echo "🏗️ Creating SQLCipher amalgamation"
+echo "🏗 Creating SQLCipher amalgamation"
 
 cd "$WORKDIR/sqlcipher" || exit 1
 
@@ -50,7 +53,7 @@ cd "$WORKDIR/sqlcipher" || exit 1
 
 make sqlite3.c > /dev/null
 
-echo "✔️ SQLCipher amalgamation created"
+echo "✔ SQLCipher amalgamation created"
 
 echo "Moving amalgamation to $WORKDIR/amalgamation"
 

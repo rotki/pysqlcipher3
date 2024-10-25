@@ -17,7 +17,7 @@ openssl = {
         "include": ".\\openssl\\include",
     },
     "linux": {
-        "lib": "/usr/local/ssl/lib/",
+        "lib": "/usr/local/ssl/lib64/",
         "include": "/usr/local/ssl/include/",
     }
 }
