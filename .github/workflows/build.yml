@@ -149,6 +149,8 @@ jobs:
           platforms: arm64
       - name: prepare build directory
         run: ./scripts/prepare.sh
+        env:
+          CIBW_ARCHS_LINUX: ${{ matrix.arch }}
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==${{ env.CIBW_VERSION }}
       - name: Build wheels

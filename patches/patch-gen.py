@@ -1,11 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: ISO-8859-1 -*-
+import os
 import sys
+import platform
 from pathlib import Path
 
 import click
 import datetime
 from jinja2 import Template
+
+linux_arch = os.getenv('CIBW_ARCHS_LINUX')
+
+if platform.system() == 'Linux':
+    if linux_arch is None or linux_arch == 'native':
+        linux_arch = platform.machine()
+
+# When running on x86_64 cibuildwheel will put it in lib64 but aarch64 will still use the lib directory
+if linux_arch == 'x86_64':
+    openssl_lib_dir = "/usr/local/ssl/lib64/"
+else:
+    openssl_lib_dir = "/usr/local/ssl/lib/"
+
 
 openssl = {
     "mac": {
@@ -17,7 +32,7 @@ openssl = {
         "include": ".\\openssl\\include",
     },
     "linux": {
-        "lib": "/usr/local/ssl/lib64/",
+        "lib": openssl_lib_dir,
         "include": "/usr/local/ssl/include/",
     }
 }
