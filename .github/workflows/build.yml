@@ -11,10 +11,10 @@ on:
       - 'v*'
 
 env:
-  LIB_VERSION: '2024.1.2'
-  PYTHON_VERSION: '3.11.7'
-  CIBW_VERSION: '2.16.2'
-  CIBW_BUILD: 'cp311-*'
+  LIB_VERSION: '2024.10.1'
+  PYTHON_VERSION: '3.11.9'
+  CIBW_VERSION: '2.21.3'
+  CIBW_BUILD: 'cp311-* cp312-*'
   CIBW_SKIP: '*-musllinux_*'
   CIBW_BUILD_VERBOSITY: 1
 
@@ -30,11 +30,11 @@ jobs:
         ARCH:
           - NAME: x86_64
             CFLAGS: "-mmacosx-version-min=10.09 -march=core2"
-            OPENSSLDIR: "/usr/local/etc/openssl@1.1"
+            OPENSSLDIR: "/usr/local/etc/openssl@3"
             FLAGS: no-shared no-asm no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc4 no-rc5 no-md2 no-md4 no-ecdh no-sock no-ssl3 no-dsa no-dh no-ec no-ecdsa no-tls1 no-rfc3779 no-whirlpool no-srp no-mdc2 no-ecdh no-engine no-srtp no-weak-ssl-ciphers
           - NAME: arm64
             CFLAGS: "-mmacosx-version-min=11.0"
-            OPENSSLDIR: "/opt/homebrew/etc/openssl@1.1"
+            OPENSSLDIR: "/opt/homebrew/etc/openssl@3"
             FLAGS: no-shared no-asm no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc4 no-rc5 no-md2 no-md4 no-ecdh no-sock no-ssl3 no-dsa no-dh no-ec no-ecdsa no-tls1 no-rfc3779 no-whirlpool no-srp no-mdc2 no-ecdh no-engine no-srtp no-weak-ssl-ciphers
     name: "Build OpenSSL for macOS (${{ matrix.ARCH.NAME }})"
     steps:
@@ -94,6 +94,7 @@ jobs:
     name: 'Build wheels for macOS'
     runs-on: macos-13
     strategy:
+      fail-fast: false
       matrix:
         arch: [arm64, x86_64, universal2]
     needs: [build_macos_openssl_universal2]
@@ -119,7 +120,7 @@ jobs:
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_ARCHS_MACOS: ${{ matrix.arch }}
-          CIBW_BEFORE_BUILD_MACOS: ./build.sh
+          CIBW_BEFORE_ALL_MACOS: ./build.sh
       - uses: actions/upload-artifact@v4
         with:
           name: pypi-wheels-macos-${{ matrix.arch }}
@@ -129,6 +130,7 @@ jobs:
     name: 'Build wheels for Linux'
     runs-on: ubuntu-20.04
     strategy:
+      fail-fast: false
       matrix:
         arch: [ aarch64, native ]
     steps:
@@ -147,13 +149,15 @@ jobs:
           platforms: arm64
       - name: prepare build directory
         run: ./scripts/prepare.sh
+        env:
+          CIBW_ARCHS_LINUX: ${{ matrix.arch }}
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==${{ env.CIBW_VERSION }}
       - name: Build wheels
         working-directory: build
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_BEFORE_BUILD_LINUX: ./build.sh
+          CIBW_BEFORE_ALL_LINUX: ./build.sh
           CIBW_ARCHS_LINUX: ${{ matrix.arch }}
       - uses: actions/upload-artifact@v4
         with:
@@ -180,7 +184,7 @@ jobs:
         working-directory: build
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_BEFORE_BUILD: Powershell.exe -F ./build.ps1
+          CIBW_BEFORE_ALL_WINDOWS: Powershell.exe -F ./build.ps1
           CIBW_ARCHS_WINDOWS: "native"
       - name: clean openssl conf
         shell: pwsh
