@@ -1,11 +1,16 @@
 # Changelog
 
+## 2024.10.1
+- Updates SQLCipher to v4.6.1
+- Updates OpenSSL to v3.0.15
+- Adds support for CPython 3.12
+
 ## 2024.1.2
 - Fixes publishing issues
 
 ## 2024.1.1
 - Move to python 3.11
-- Update OpenSSL to v1.1.1w
+- Updates OpenSSL to v1.1.1w
 
 ## 2023.7.1
 - Updates SQLCipher to v4.5.3
