@@ -130,11 +130,15 @@ jobs:
 
   build_wheels_linux:
     name: 'Build wheels for Linux'
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.arch.runner }}
     strategy:
       fail-fast: false
       matrix:
-        arch: [ aarch64, native ]
+        arch:
+          - name: aarch64
+            runner: ubuntu-24.04-arm
+          - name: native
+            runner: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -145,15 +149,10 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        if: ${{ matrix.arch == 'aarch64' }}
-        with:
-          platforms: arm64
       - name: prepare build directory
         run: ./scripts/prepare.sh
         env:
-          CIBW_ARCHS_LINUX: ${{ matrix.arch }}
+          CIBW_ARCHS_LINUX: ${{ matrix.arch.name }}
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel=="${CIBW_VERSION}"
       - name: Build wheels
@@ -161,10 +160,10 @@ jobs:
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_BEFORE_ALL_LINUX: ./build.sh
-          CIBW_ARCHS_LINUX: ${{ matrix.arch }}
+          CIBW_ARCHS_LINUX: ${{ matrix.arch.name }}
       - uses: actions/upload-artifact@v4
         with:
-          name: pypi-wheels-linux-${{ matrix.arch }}
+          name: pypi-wheels-linux-${{ matrix.arch.name }}
           path: build/wheelhouse/*.whl
 
   build_wheels_windows:
