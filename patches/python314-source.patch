@@ -444,7 +444,7 @@ diff --git a/src/python3/connection.c b/src/python3/connection.c
 index 7e5f0c7..195eeda 100644
 --- a/src/python3/connection.c
 +++ b/src/python3/connection.c
-@@ -21,487 +21,828 @@
+@@ -21,487 +21,830 @@
   * 3. This notice may not be removed or altered from any source distribution.
   */
  
@@ -719,6 +719,8 @@ index 7e5f0c7..195eeda 100644
 +    factory: object(c_default='(PyObject*)clinic_state()->ConnectionType') = ConnectionType
 +    cached_statements as cache_size: int = 128
 +    uri: bool = False
++    flags: int = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE
++    vfs: object = None
 +    *
 +    autocommit: Autocommit(c_default='LEGACY_TRANSACTION_CONTROL') = sqlite3.LEGACY_TRANSACTION_CONTROL
 +[clinic start generated code]*/
@@ -10209,7 +10211,7 @@ new file mode 100644
 index 0000000..1bcda77
 --- /dev/null
 +++ b/src/python3/clinic/_sqlite3.connect.c.h
-@@ -0,0 +1,31 @@
+@@ -0,0 +1,33 @@
 +/*[clinic input]
 +preserve
 +[clinic start generated code]*/
@@ -10223,7 +10225,8 @@ index 0000000..1bcda77
 +PyDoc_STRVAR(pysqlite_connect__doc__,
 +"connect($module, /, database, timeout=5.0, detect_types=0,\n"
 +"        isolation_level=\'\', check_same_thread=True,\n"
-+"        factory=ConnectionType, cached_statements=128, uri=False, *,\n"
++"        factory=ConnectionType, cached_statements=128, uri=False,\n"
++"        flags=SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, vfs=None, *,\n"
 +"        autocommit=sqlite3.LEGACY_TRANSACTION_CONTROL)\n"
 +"--\n"
 +"\n"
@@ -10234,7 +10237,8 @@ index 0000000..1bcda77
 +"\n"
 +"Note: Passing more than 1 positional argument to _sqlite3.connect() is\n"
 +"deprecated. Parameters \'timeout\', \'detect_types\', \'isolation_level\',\n"
-+"\'check_same_thread\', \'factory\', \'cached_statements\' and \'uri\' will\n"
++"\'check_same_thread\', \'factory\', \'cached_statements\', \'uri\', \'flags\',\n"
++"and \'vfs\' will\n"
 +"become keyword-only parameters in Python 3.15.\n"
 +"");
 +
@@ -10467,7 +10471,7 @@ new file mode 100644
 index 0000000..25129b6
 --- /dev/null
 +++ b/src/python3/clinic/connection.c.h
-@@ -0,0 +1,1927 @@
+@@ -0,0 +1,1957 @@
 +/*[clinic input]
 +preserve
 +[clinic start generated code]*/
@@ -10484,6 +10488,7 @@ index 0000000..25129b6
 +                              const char *isolation_level,
 +                              int check_same_thread, PyObject *factory,
 +                              int cache_size, int uri,
++                              int flags, const char *vfs,
 +                              enum autocommit_mode autocommit);
 +
 +// Emit compiler warnings when we get to Python 3.15.
@@ -10503,7 +10508,7 @@ index 0000000..25129b6
 +    int return_value = -1;
 +    #if defined(Py_BUILD_CORE) && !defined(Py_BUILD_CORE_MODULE)
 +
-+    #define NUM_KEYWORDS 9
++    #define NUM_KEYWORDS 11
 +    static struct {
 +        PyGC_Head _this_is_not_used;
 +        PyObject_VAR_HEAD
@@ -10512,7 +10517,7 @@ index 0000000..25129b6
 +    } _kwtuple = {
 +        .ob_base = PyVarObject_HEAD_INIT(&PyTuple_Type, NUM_KEYWORDS)
 +        .ob_hash = -1,
-+        .ob_item = { &_Py_ID(database), &_Py_ID(timeout), &_Py_ID(detect_types), &_Py_ID(isolation_level), &_Py_ID(check_same_thread), &_Py_ID(factory), &_Py_ID(cached_statements), &_Py_ID(uri), &_Py_ID(autocommit), },
++        .ob_item = { &_Py_ID(database), &_Py_ID(timeout), &_Py_ID(detect_types), &_Py_ID(isolation_level), &_Py_ID(check_same_thread), &_Py_ID(factory), &_Py_ID(cached_statements), &_Py_ID(uri), &_Py_ID(flags), &_Py_ID(vfs), &_Py_ID(autocommit), },
 +    };
 +    #undef NUM_KEYWORDS
 +    #define KWTUPLE (&_kwtuple.ob_base.ob_base)
@@ -10521,14 +10526,14 @@ index 0000000..25129b6
 +    #  define KWTUPLE NULL
 +    #endif  // !Py_BUILD_CORE
 +
-+    static const char * const _keywords[] = {"database", "timeout", "detect_types", "isolation_level", "check_same_thread", "factory", "cached_statements", "uri", "autocommit", NULL};
++    static const char * const _keywords[] = {"database", "timeout", "detect_types", "isolation_level", "check_same_thread", "factory", "cached_statements", "uri", "flags", "vfs", "autocommit", NULL};
 +    static _PyArg_Parser _parser = {
 +        .keywords = _keywords,
 +        .fname = "Connection",
 +        .kwtuple = KWTUPLE,
 +    };
 +    #undef KWTUPLE
-+    PyObject *argsbuf[9];
++    PyObject *argsbuf[11];
 +    PyObject * const *fastargs;
 +    Py_ssize_t nargs = PyTuple_GET_SIZE(args);
 +    Py_ssize_t noptargs = nargs + (kwargs ? PyDict_GET_SIZE(kwargs) : 0) - 1;
@@ -10540,21 +10545,23 @@ index 0000000..25129b6
 +    PyObject *factory = (PyObject*)clinic_state()->ConnectionType;
 +    int cache_size = 128;
 +    int uri = 0;
++    int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
++    const char *vfs = NULL;
 +    enum autocommit_mode autocommit = LEGACY_TRANSACTION_CONTROL;
 +
-+    if (nargs > 1 && nargs <= 8) {
++    if (nargs > 1 && nargs <= 10) {
 +        if (PyErr_WarnEx(PyExc_DeprecationWarning,
 +                "Passing more than 1 positional argument to _sqlite3.Connection()"
 +                " is deprecated. Parameters 'timeout', 'detect_types', "
 +                "'isolation_level', 'check_same_thread', 'factory', "
-+                "'cached_statements' and 'uri' will become keyword-only "
++                "'cached_statements', 'uri', 'flags', and 'vfs' will become keyword-only "
 +                "parameters in Python 3.15.", 1))
 +        {
 +            goto exit;
 +        }
 +    }
 +    fastargs = _PyArg_UnpackKeywords(_PyTuple_CAST(args)->ob_item, nargs, kwargs, NULL, &_parser,
-+            /*minpos*/ 1, /*maxpos*/ 8, /*minkw*/ 0, /*varpos*/ 0, argsbuf);
++            /*minpos*/ 1, /*maxpos*/ 10, /*minkw*/ 0, /*varpos*/ 0, argsbuf);
 +    if (!fastargs) {
 +        goto exit;
 +    }
@@ -10627,15 +10634,42 @@ index 0000000..25129b6
 +            goto skip_optional_pos;
 +        }
 +    }
++    if (fastargs[8]) {
++        flags = PyLong_AsInt(fastargs[8]);
++        if (flags == -1 && PyErr_Occurred()) {
++            goto exit;
++        }
++        if (!--noptargs) {
++            goto skip_optional_pos;
++        }
++    }
++    if (fastargs[9]) {
++        if (fastargs[9] == Py_None) {
++            vfs = NULL;
++        }
++        else if (PyUnicode_Check(fastargs[9])) {
++            vfs = _PyUnicode_AsUTF8NoNUL(fastargs[9]);
++            if (vfs == NULL) {
++                goto exit;
++            }
++        }
++        else {
++            PyErr_SetString(PyExc_TypeError, "vfs must be str or None");
++            goto exit;
++        }
++        if (!--noptargs) {
++            goto skip_optional_pos;
++        }
++    }
 +skip_optional_pos:
 +    if (!noptargs) {
 +        goto skip_optional_kwonly;
 +    }
-+    if (!autocommit_converter(fastargs[8], &autocommit)) {
++    if (!autocommit_converter(fastargs[10], &autocommit)) {
 +        goto exit;
 +    }
 +skip_optional_kwonly:
-+    return_value = pysqlite_connection_init_impl((pysqlite_Connection *)self, database, timeout, detect_types, isolation_level, check_same_thread, factory, cache_size, uri, autocommit);
++    return_value = pysqlite_connection_init_impl((pysqlite_Connection *)self, database, timeout, detect_types, isolation_level, check_same_thread, factory, cache_size, uri, flags, vfs, autocommit);
 +
 +exit:
 +    return return_value;
