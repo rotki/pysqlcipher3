@@ -71,7 +71,7 @@ echo "Preparing amalgamation"
 
 cd "$WORKDIR\sqlcipher\"
 
-& nmake /f Makefile.msc sqlite3.c CFLAGS="/DSQLITE_HAS_CODEC -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_EXTRA_INIT=sqlcipher_extra_init -DSQLITE_EXTRA_SHUTDOWN=sqlcipher_extra_shutdown" | out-null
+& nmake /f Makefile.msc sqlite3.c OPTS="-DSQLITE_HAS_CODEC -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_EXTRA_INIT=sqlcipher_extra_init -DSQLITE_EXTRA_SHUTDOWN=sqlcipher_extra_shutdown" | out-null
 
 echo "Moving amalgamation to $WORKDIR\amalgamation"
 

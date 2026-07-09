@@ -19,6 +19,7 @@ env:
   CIBW_BUILD: 'cp314-* cp314t-*'
   CIBW_SKIP: '*-musllinux_*'
   CIBW_BUILD_VERBOSITY: 1
+  CIBW_TEST_COMMAND: 'python -c "from pysqlcipher3 import dbapi2 as sqlite; conn = sqlite.connect('':memory:''); conn.close()"'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
