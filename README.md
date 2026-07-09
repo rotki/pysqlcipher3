@@ -13,7 +13,7 @@ Configuration for providing pre-build [pysqlcipher3](https://github.com/rigglema
 
 This is a collections of patches and scripts to build wheels for rotki and publish them on PyPI.
 
-It builds wheels for CPython 3.11, 3.12, 3.13, and 3.14 for the following architectures:
+It builds wheels for CPython 3.14 for the following architectures:
 
 - Linux x86_64
 - Linux aarch64

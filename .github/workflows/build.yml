@@ -14,9 +14,9 @@ permissions: {}
 
 env:
   LIB_VERSION: '2026.7.1'
-  PYTHON_VERSION: '3.11.9'
+  PYTHON_VERSION: '3.14'
   CIBW_VERSION: '4.1.0'
-  CIBW_BUILD: 'cp311-* cp312-* cp313-* cp314-* cp314t-*'
+  CIBW_BUILD: 'cp314-* cp314t-*'
   CIBW_SKIP: '*-musllinux_*'
   CIBW_BUILD_VERBOSITY: 1
 
