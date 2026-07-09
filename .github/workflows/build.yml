@@ -10,6 +10,8 @@ on:
     tags:
       - 'v*'
 
+permissions: {}
+
 env:
   LIB_VERSION: '2026.7.1'
   PYTHON_VERSION: '3.11.9'
@@ -38,7 +40,7 @@ jobs:
             FLAGS: no-shared no-asm no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc4 no-rc5 no-md2 no-md4 no-ecdh no-sock no-ssl3 no-dsa no-dh no-ec no-ecdsa no-tls1 no-rfc3779 no-whirlpool no-srp no-mdc2 no-ecdh no-engine no-srtp no-weak-ssl-ciphers
     name: "Build OpenSSL for macOS (${{ matrix.ARCH.NAME }})"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
           submodules: true
           persist-credentials: false
@@ -48,16 +50,19 @@ jobs:
           cd openssl
           perl ./Configure \
               --prefix="${BASEDIR}/artifact" \
-              --openssldir=${{ matrix.ARCH.OPENSSLDIR }} \
-              darwin64-${{ matrix.ARCH.NAME }}-cc \
-              ${{ matrix.ARCH.FLAGS }}
+              --openssldir="${OPENSSLDIR}" \
+              "darwin64-${ARCH_NAME}-cc" \
+              ${CONFIGURE_FLAGS}
 
           make -j$(sysctl -n hw.logicalcpu)
           make install_sw
         env:
+          ARCH_NAME: ${{ matrix.ARCH.NAME }}
           CFLAGS: ${{ matrix.ARCH.CFLAGS }}
+          CONFIGURE_FLAGS: ${{ matrix.ARCH.FLAGS }}
+          OPENSSLDIR: ${{ matrix.ARCH.OPENSSLDIR }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: "openssl-macos-${{ matrix.ARCH.NAME }}"
           path: artifact/
@@ -67,11 +72,11 @@ jobs:
     name: "Build OpenSSL for macOS (universal2)"
     needs: [build_macos_openssl]
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: openssl-macos-x86_64
           path: x86-64
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: openssl-macos-arm64
           path: arm64
@@ -86,7 +91,7 @@ jobs:
           lipo -create -output bin/openssl ../x86-64/bin/openssl ../arm64/bin/openssl
           lipo -create -output lib/libssl.a ../x86-64/lib/libssl.a ../arm64/lib/libssl.a
           lipo -create -output lib/libcrypto.a ../x86-64/lib/libcrypto.a ../arm64/lib/libcrypto.a
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: "openssl-macos-universal2"
           path: artifact/
@@ -100,16 +105,15 @@ jobs:
         arch: [arm64, x86_64, universal2]
     needs: [build_macos_openssl_universal2]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
           submodules: true
           persist-credentials: false
       - name: Set up python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: openssl-macos-${{ matrix.arch }}
           path: openssl-macos-${{ matrix.arch }}
@@ -123,7 +127,7 @@ jobs:
         env:
           CIBW_ARCHS_MACOS: ${{ matrix.arch }}
           CIBW_BEFORE_ALL_MACOS: ./build.sh
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: pypi-wheels-macos-${{ matrix.arch }}
           path: build/wheelhouse/*.whl
@@ -140,15 +144,14 @@ jobs:
           - name: native
             runner: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
           submodules: true
           persist-credentials: false
       - name: Set up python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
       - name: prepare build directory
         run: ./scripts/prepare.sh
         env:
@@ -161,7 +164,7 @@ jobs:
         env:
           CIBW_BEFORE_ALL_LINUX: ./build.sh
           CIBW_ARCHS_LINUX: ${{ matrix.arch.name }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: pypi-wheels-linux-${{ matrix.arch.name }}
           path: build/wheelhouse/*.whl
@@ -170,15 +173,14 @@ jobs:
     name: 'Build wheels for Windows'
     runs-on: 'windows-2019'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
           submodules: true
           persist-credentials: false
       - name: Set up python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
       - name: prepare build directory
         run: ./scripts/prepare.ps1
       - name: Install cibuildwheel
@@ -192,7 +194,7 @@ jobs:
       - name: clean openssl conf
         shell: pwsh
         run: echo "OPENSSL_CONF=''" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: pypi-wheels-windows
           path: build\wheelhouse\*.whl
@@ -201,22 +203,21 @@ jobs:
     name: 'Build sdist'
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
           submodules: true
           persist-credentials: false
       - name: Set up python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
       - name: prepare build directory
         run: ./scripts/prepare.sh
       - name: Build sdist
         working-directory: build
         run: python3 -m pip install --upgrade build && python -m build -s
       - name: Store artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: pypi-sdist
           path: build/dist/*.tar.gz
@@ -228,16 +229,15 @@ jobs:
     if: github.event_name == 'push' && !(startsWith(github.ref, 'refs/tags/v'))
     environment: test-pypi
     permissions:
-      # IMPORTANT: this permission is mandatory for Trusted Publishing
-      id-token: write
+      id-token: write  # needed for PyPI Trusted Publishing
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           merge-multiple: true
           pattern: pypi-*
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.10.3
+      - uses: pypa/gh-action-pypi-publish@f7600683efdcb7656dec5b29656edb7bc586e597  # v1.10.3
         with:
           repository-url: https://test.pypi.org/legacy/
           skip-existing: true
@@ -249,13 +249,12 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     environment: pypi
     permissions:
-      # IMPORTANT: this permission is mandatory for Trusted Publishing
-      id-token: write
+      id-token: write  # needed for PyPI Trusted Publishing
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           merge-multiple: true
           pattern: pypi-*
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.10.3
+      - uses: pypa/gh-action-pypi-publish@f7600683efdcb7656dec5b29656edb7bc586e597  # v1.10.3
