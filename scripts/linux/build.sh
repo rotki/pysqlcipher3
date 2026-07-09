@@ -36,7 +36,7 @@ echo "⚙ Running Configure"
   --prefix=/usr/local/ssl --openssldir=/usr/local/ssl > /dev/null || exit 1
 
 echo "🔨 Running make"
-make all > /dev/null || exit 1
+make build_sw > /dev/null || exit 1
 make install_sw > /dev/null || exit 1
 
 echo "✔ OpenSSL Build Complete"
@@ -46,10 +46,9 @@ echo "🏗 Creating SQLCipher amalgamation"
 cd "$WORKDIR/sqlcipher" || exit 1
 
 ./configure \
-  --enable-tempstore=yes \
+  --with-tempstore=yes \
   --disable-shared \
-  --enable-static=yes \
-  --with-crypto-lib=none > /dev/null || exit 1
+  CFLAGS="-DSQLITE_HAS_CODEC -DSQLITE_EXTRA_INIT=sqlcipher_extra_init -DSQLITE_EXTRA_SHUTDOWN=sqlcipher_extra_shutdown" > /dev/null || exit 1
 
 make sqlite3.c > /dev/null || exit 1
 

@@ -11,11 +11,9 @@ cd "sqlcipher" || exit 1
 echo "Creating SQLCipher amalgamation"
 
 ./configure \
-  --enable-tempstore=yes \
+  --with-tempstore=yes \
   --disable-shared \
-  --enable-static=yes \
-  --with-crypto-lib=none \
-  CFLAGS="-DSQLITE_HAS_CODEC -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -I$WORKDIR/openssl/include" \
+  CFLAGS="-DSQLITE_HAS_CODEC -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_EXTRA_INIT=sqlcipher_extra_init -DSQLITE_EXTRA_SHUTDOWN=sqlcipher_extra_shutdown -I$WORKDIR/openssl/include" \
   LDFLAGS="$WORKDIR/openssl/lib/libcrypto.a" > /dev/null || exit 1
 
 make sqlite3.c > /dev/null || exit 1

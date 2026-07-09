@@ -53,6 +53,8 @@ cd "$PYSQLCIPHER_DIR"
 git reset --hard HEAD
 echo "Patching Readme/License/Manifest"
 git apply --reject --whitespace=fix "$SOURCE_DIR\patches\pysqlcipher3.patch"
+echo "Patching Python 3 extension sources"
+git apply --reject --whitespace=fix "$SOURCE_DIR\patches\python314-source.patch"
 echo "Patching setup.py"
 git apply --reject --whitespace=fix "$SOURCE_DIR\patches\pysqlcipher3.diff"
 echo "Copying pysqlcipher3"
@@ -71,4 +73,3 @@ Copy-Item -Path "$SOURCE_DIR\openssl" -Destination "$BUILD_DIR\" -Recurse -Force
 echo "OPENSSL_CONF=$BUILD_DIR\openssl" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
 
 echo $BUILD_DIR
-

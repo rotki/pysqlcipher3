@@ -14,7 +14,7 @@ source /tmp/.venv-ci/bin/activate
 pip3 install cibuildwheel==2.21.3
 
 export CIBW_BEFORE_ALL='./build.sh'
-export CIBW_BUILD='cp311-*'
+export CIBW_BUILD='cp314-* cp314t-*'
 export CIBW_SKIP='*-musllinux_*'
 export CIBW_ARCHS='native'
 export CIBW_BUILD_VERBOSITY=1

@@ -30,6 +30,8 @@ cd "$PYSQLCIPHER_DIR" || exit 1
 git reset --hard HEAD
 echo "Patching Readme/License/Manifest"
 git apply --reject --whitespace=fix "$SOURCE_DIR/patches/pysqlcipher3.patch"
+echo "Patching Python 3 extension sources"
+git apply --reject --whitespace=fix "$SOURCE_DIR/patches/python314-source.patch"
 echo "Patching setup.py"
 git apply --reject --whitespace=fix "$SOURCE_DIR/patches/pysqlcipher3.diff"
 echo "Copying pysqlcipher3"
@@ -52,11 +54,6 @@ fi
 if [[ -d "$SOURCE_DIR/openssl-macos-arm64" ]]; then
   echo "Copying arm64 OpenSSL"
   cp -R "$SOURCE_DIR/openssl-macos-arm64" "$BUILD_DIR/"
-fi
-
-if [[ -d "$SOURCE_DIR/openssl-macos-universal2" ]]; then
-  echo "Copying universal2 OpenSSL"
-  cp -R "$SOURCE_DIR/openssl-macos-universal2" "$BUILD_DIR/"
 fi
 
 if [[ -d "$SOURCE_DIR/openssl-macos-x86_64" ]]; then
