@@ -36,7 +36,7 @@ echo "⚙ Running Configure"
   --prefix=/usr/local/ssl --openssldir=/usr/local/ssl > /dev/null || exit 1
 
 echo "🔨 Running make"
-make all > /dev/null || exit 1
+make build_sw > /dev/null || exit 1
 make install_sw > /dev/null || exit 1
 
 echo "✔ OpenSSL Build Complete"
