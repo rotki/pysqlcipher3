@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.7.1
+- Ports the Python 3 extension sources to CPython 3.14's sqlite implementation.
+- Adds CPython 3.13, 3.14, and 3.14 free-threaded wheel builds.
+
 ## 2024.10.1
 - Updates SQLCipher to v4.6.1
 - Updates OpenSSL to v3.0.15

@@ -11,10 +11,10 @@ on:
       - 'v*'
 
 env:
-  LIB_VERSION: '2024.10.1'
+  LIB_VERSION: '2026.7.1'
   PYTHON_VERSION: '3.11.9'
-  CIBW_VERSION: '2.21.3'
-  CIBW_BUILD: 'cp311-* cp312-*'
+  CIBW_VERSION: '4.1.0'
+  CIBW_BUILD: 'cp311-* cp312-* cp313-* cp314-* cp314t-*'
   CIBW_SKIP: '*-musllinux_*'
   CIBW_BUILD_VERBOSITY: 1
 
