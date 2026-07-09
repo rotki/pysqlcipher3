@@ -56,11 +56,6 @@ if [[ -d "$SOURCE_DIR/openssl-macos-arm64" ]]; then
   cp -R "$SOURCE_DIR/openssl-macos-arm64" "$BUILD_DIR/"
 fi
 
-if [[ -d "$SOURCE_DIR/openssl-macos-universal2" ]]; then
-  echo "Copying universal2 OpenSSL"
-  cp -R "$SOURCE_DIR/openssl-macos-universal2" "$BUILD_DIR/"
-fi
-
 if [[ -d "$SOURCE_DIR/openssl-macos-x86_64" ]]; then
   echo "Copying x86_64 OpenSSL"
   cp -R "$SOURCE_DIR/openssl-macos-x86_64" "$BUILD_DIR/"

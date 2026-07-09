@@ -20,7 +20,6 @@ It builds wheels for CPython 3.11, 3.12, 3.13, and 3.14 for the following archit
 - Windows amd64
 - macOS x86_64
 - macOS arm64
-- macOS universal2
 
 The package is intended to be a drop-in replacement for the [pysqlcipher3 package](https://pypi.org/project/pysqlcipher3/).
 And it is statically linked with [SQLCipher](https://github.com/sqlcipher/sqlcipher) 4.x and [OpenSSL](https://github.com/openssl/openssl) 3.0.x LTS.
