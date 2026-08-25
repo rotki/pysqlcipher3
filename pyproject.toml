@@ -1,0 +1,43 @@
+[build-system]
+requires = [
+    "setuptools>=69",
+    "conan>=2.0",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sqlcipher3"
+version = "0.6.2"
+description = "DB-API 2.0 interface for SQLCipher 4.x on CPython 3.14 and 3.14t"
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+authors = [
+    { name = "Charles Leifer", email = "coleifer@gmail.com" },
+    { name = "laggykiller", email = "chaudominic2@gmail.com" }
+]
+maintainers = [
+    { name = "Rotki Solutions GmbH", email = "info@rotki.com" }
+]
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: C",
+    "Topic :: Database",
+    "Topic :: Database :: Database Engines/Servers",
+    "Topic :: Database :: Front-Ends",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+Repository = "https://github.com/rotki/pysqlcipher3"
+Upstream = "https://github.com/coleifer/sqlcipher3"
+
+[tool.setuptools]
+package-dir = { "sqlcipher3" = "sqlcipher3" }
+
+[tool.cibuildwheel]
+build = "cp314-* cp314t-*"
+skip = "pp* *-musllinux_i686"

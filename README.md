@@ -1,53 +1,70 @@
-# rotki-pysqlcipher3
+sqlcipher3
+==========
 
-![PyPI - Version](https://img.shields.io/pypi/v/rotki-pysqlcipher3)
-![SQLCipher - Version](https://img.shields.io/badge/SQLCipher-v4.6.1-green)
-![SQLite - Version](https://img.shields.io/badge/SQLite-3.46.1-green)
-![OpenSSL - Version](https://img.shields.io/badge/OpenSSL-3.0.15-green)
+This repository is based on
+[coleifer/sqlcipher3](https://github.com/coleifer/sqlcipher3) and is maintained
+by rotki. Its SQLite extension wrapper has been updated from CPython 3.14 and
+adjusted to work with both regular CPython 3.14 and free-threaded CPython
+3.14t without enabling the global interpreter lock during import.
 
+This library takes [pysqlite3](https://github.com/coleifer/pysqlite3) and makes
+some small modifications so it is suitable for use with
+[sqlcipher](https://github.com/sqlcipher/sqlcipher) (sqlite with encryption).
 
+Additional features:
 
-Configuration for providing pre-build [pysqlcipher3](https://github.com/rigglemania/pysqlcipher3) wheels for [rotki](https://github.com/rotki/rotki).
+* User-defined window functions (requires SQLite >= 3.25)
+* Flags and VFS can be specified when opening connection
+* Incremental BLOB I/O, [bpo-24905](https://github.com/python/cpython/pull/271)
+* Improved error messages, [bpo-16379](https://github.com/python/cpython/pull/1108)
+* Simplified detection of DML statements via `sqlite3_stmt_readonly`.
+* Sqlite native backup API (also present in standard library 3.7 and newer).
 
-## Description
+A completely self-contained binary package (wheel) is available starting with
+version 0.6.2. This package contains the latest release of SQLCipher compiled
+with numerous extensions, and requires no external dependencies.
 
-This is a collections of patches and scripts to build wheels for rotki and publish them on PyPI.
+Python compatibility
+--------------------
 
-It builds wheels for CPython 3.14 for the following architectures:
+This fork supports CPython 3.14 only. Wheels are built for the regular
+``cp314`` ABI and the free-threaded ``cp314t`` ABI.
 
-- Linux x86_64
-- Linux aarch64
-- Windows amd64
-- macOS x86_64
-- macOS arm64
+If you prefer to build yourself, a source distribution is available on PyPI.
+Note that since SQLCipher 4.7.0 the build system for SQLCipher has changed
+substantially and it no longer provides a `libsqlcipher` but is intended to
+overwrite the system libsqlite3.
 
-The package is intended to be a drop-in replacement for the [pysqlcipher3 package](https://pypi.org/project/pysqlcipher3/).
-And it is statically linked with [SQLCipher](https://github.com/sqlcipher/sqlcipher) 4.x and [OpenSSL](https://github.com/openssl/openssl) 3.0.x LTS.
+sqlcipher3 with statically-linked sqlcipher
+-------------------------------------------
 
-## License
-The following license applies to the scripts and patches of this repo. 
-For the submodules their respective licenses apply.
+Install a wheel using `pip`:
 
 ```
-MIT License
-
-Copyright (c) 2022-2024 Rotki Solutions GmbH
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+$ pip install sqlcipher3
 ```
+
+Because SQLCipher 4.7.0 and newer no longer provide a system libsqlcipher,
+there is no great way to link against a system library. The best route if you
+wish to use a different version of SQLCipher than the one bundled is to
+check-out the source code and replace the vendored sources with your own
+desired SQLCipher amalgamation.
+
+```
+# Copy your specific sqlcipher amalgamations into the vendor/ directory at the
+# root of the sqlcipher3 checkout:
+$ cp sqlite3.[ch] vendor/
+
+# Build your library.
+$ pip install .
+
+# Or alternately,
+$ python setup.py build
+```
+
+>Nor aught availed him now to have built in heaven high towers; nor did he
+>scrape by all his engines, but was headlong sent with his industrious crew
+>to build in hell.
+
+Beware to those who would build their own wheels! See what has been wrought and
+tremble.
