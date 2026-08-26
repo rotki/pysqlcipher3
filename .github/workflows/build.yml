@@ -2,21 +2,36 @@ name: Build wheels
 
 on:
   push:
+    branches:
+      - "**"
     tags:
       - "[0-9]+.[0-9]+.[0-9]+"
       - "[0-9]+.[0-9]+.[0-9]+-**"
       - "v[0-9]+.[0-9]+.[0-9]+"
       - "v[0-9]+.[0-9]+.[0-9]+-**"
+  pull_request:
 
 permissions: {}
 
+env:
+  SQLCIPHER3_VERSION: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  tests:
+    name: Run tests
+    if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+    permissions:
+      contents: read
+    uses: ./.github/workflows/tests.yaml
+
   sdist:
     name: Build source distribution
+    needs: tests
+    if: ${{ !cancelled() && (startsWith(github.ref, 'refs/tags/') || needs.tests.result == 'success') }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -45,6 +60,8 @@ jobs:
 
   wheels:
     name: Build ${{ matrix.out }} wheels
+    needs: tests
+    if: ${{ !cancelled() && (startsWith(github.ref, 'refs/tags/') || needs.tests.result == 'success') }}
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read
@@ -52,72 +69,36 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             cibw_archs: x86_64
             cibw_build: "cp314-manylinux_* cp314t-manylinux_*"
             cibw_skip: ""
             compile_target: x86_64
             out: x86_64-manylinux
-          - os: ubuntu-latest
-            cibw_archs: x86_64
-            cibw_build: "cp314-musllinux_* cp314t-musllinux_*"
-            cibw_skip: ""
-            compile_target: x86_64
-            out: x86_64-musllinux
           - os: ubuntu-24.04-arm
             cibw_archs: aarch64
             cibw_build: "cp314-manylinux_* cp314t-manylinux_*"
             cibw_skip: ""
             compile_target: armv8
             out: armv8-manylinux
-          - os: ubuntu-24.04-arm
-            cibw_archs: aarch64
-            cibw_build: "cp314-musllinux_* cp314t-musllinux_*"
-            cibw_skip: ""
-            compile_target: armv8
-            out: armv8-musllinux
-          - os: ubuntu-latest
-            cibw_archs: i686
-            cibw_build: "cp314-manylinux_* cp314t-manylinux_*"
-            cibw_skip: ""
-            compile_target: x86
-            out: x86-manylinux
           - os: windows-latest
             cibw_archs: AMD64
             cibw_build: "cp314-* cp314t-*"
             cibw_skip: ""
             compile_target: x86_64
             out: x86_64-windows
-          - os: windows-latest
-            cibw_archs: x86
-            cibw_build: "cp314-* cp314t-*"
-            cibw_skip: ""
-            compile_target: x86
-            out: x86-windows
-          - os: windows-latest
-            cibw_archs: ARM64
-            cibw_build: "cp314-* cp314t-*"
-            cibw_skip: ""
-            compile_target: armv8
-            out: armv8-windows
           - os: macos-15-intel
             cibw_archs: x86_64
             cibw_build: "cp314-* cp314t-*"
             cibw_skip: ""
             compile_target: x86_64
             out: x86_64-macos
-          - os: macos-latest
+          - os: macos-15
             cibw_archs: arm64
             cibw_build: "cp314-* cp314t-*"
             cibw_skip: ""
             compile_target: armv8
             out: armv8-macos
-          - os: macos-latest
-            cibw_archs: universal2
-            cibw_build: "cp314-* cp314t-*"
-            cibw_skip: ""
-            compile_target: universal2
-            out: universal2-macos
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -128,29 +109,21 @@ jobs:
         with:
           python-version: "3.14"
 
-      - name: Set up QEMU
-        if: runner.os == 'Linux'
-        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130  # v3.7.0
-        with:
-          platforms: all
-          # This should be temporary
-          # xref https://github.com/docker/setup-qemu-action/issues/188
-          # xref https://github.com/tonistiigi/binfmt/issues/215
-          image: tonistiigi/binfmt:qemu-v8.1.5
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel==3.3.0
 
       - name: Build wheels for ${{ matrix.os }} ${{ matrix.cibw_archs }} ${{ matrix.cibw_build }}
-        uses: pypa/cibuildwheel@63fd63b352a9a8bdcc24791c9dbee952ee9a8abc  # v3.3.0
+        run: python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_BUILD_FRONTEND: build
           CIBW_BUILD: ${{ matrix.cibw_build }}
           CIBW_SKIP: ${{ matrix.cibw_skip }}
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          CIBW_ENVIRONMENT: SQLCIPHER3_COMPILE_TARGET=${{ matrix.compile_target }}
+          CIBW_ENVIRONMENT: >
+            SQLCIPHER3_COMPILE_TARGET=${{ matrix.compile_target }}
+            SQLCIPHER3_VERSION=${{ env.SQLCIPHER3_VERSION }}
           CIBW_BEFORE_ALL_LINUX: command -v yum >/dev/null && yum -y install perl-core || command -v apk >/dev/null && apk add perl || true
-          CIBW_TEST_COMMAND: >
-            mv {project}/sqlcipher3 {project}/sqlcipher3_ &&
-            python {project}/tests/ &&
-            mv {project}/sqlcipher3_ {project}/sqlcipher3
+          CIBW_TEST_COMMAND: python {project}/tests/wheel_smoke.py
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
@@ -160,6 +133,7 @@ jobs:
 
   publish:
     name: Publish to PyPI
+    if: startsWith(github.ref, 'refs/tags/')
     needs: [sdist, wheels]
     runs-on: ubuntu-latest
     environment: pypi
