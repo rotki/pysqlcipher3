@@ -1,5 +1,7 @@
-.idea
-build
-tmp
-openssl-*
-patches/pysqlcipher3.diff
+sqlcipher/sqlite3.h
+build/*
+conan_output/*
+dist/*
+sqlcipher3.egg-info/*
+_sqlite*.so
+uv.lock
