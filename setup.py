@@ -15,6 +15,7 @@ import sysconfig
 from setuptools import setup, Extension
 
 
+DISTRIBUTION_NAME = 'rotki-pysqlcipher3'
 PACKAGE_NAME = 'sqlcipher3'
 DEFAULT_VERSION = '0.6.2'
 VERSION = os.getenv('SQLCIPHER3_VERSION', DEFAULT_VERSION).removeprefix('v') or DEFAULT_VERSION
@@ -189,7 +190,7 @@ if __name__ == '__main__':
         language='c')
 
     setup(
-        name=PACKAGE_NAME,
+        name=DISTRIBUTION_NAME,
         version=VERSION,
         package_dir={PACKAGE_NAME: PACKAGE_NAME},
         packages=[PACKAGE_NAME],
