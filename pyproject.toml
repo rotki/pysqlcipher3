@@ -7,7 +7,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sqlcipher3"
+name = "rotki-pysqlcipher3"
 dynamic = ["version"]
 description = "DB-API 2.0 interface for SQLCipher 4.x on CPython 3.14 and 3.14t"
 readme = "README.md"

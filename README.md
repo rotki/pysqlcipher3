@@ -41,7 +41,7 @@ sqlcipher3 with statically-linked sqlcipher
 Install a wheel using `pip`:
 
 ```
-$ pip install sqlcipher3
+$ pip install rotki-pysqlcipher3
 ```
 
 Because SQLCipher 4.7.0 and newer no longer provide a system libsqlcipher,
