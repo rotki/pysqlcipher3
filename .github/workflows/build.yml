@@ -83,10 +83,16 @@ jobs:
             out: armv8-manylinux
           - os: windows-latest
             cibw_archs: AMD64
-            cibw_build: "cp314-* cp314t-*"
+            cibw_build: "cp314-*"
             cibw_skip: ""
             compile_target: x86_64
-            out: x86_64-windows
+            out: x86_64-windows-cp314
+          - os: windows-latest
+            cibw_archs: AMD64
+            cibw_build: "cp314t-*"
+            cibw_skip: ""
+            compile_target: x86_64
+            out: x86_64-windows-cp314t
           - os: macos-15-intel
             cibw_archs: x86_64
             cibw_build: "cp314-* cp314t-*"
@@ -136,8 +142,7 @@ jobs:
     if: >-
       ${{
         !cancelled() &&
-        github.event_name == 'push' &&
-        github.ref == 'refs/heads/main' &&
+        github.event_name == 'pull_request' &&
         needs.sdist.result == 'success' &&
         needs.wheels.result == 'success'
       }}
